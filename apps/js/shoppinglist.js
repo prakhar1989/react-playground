@@ -1,16 +1,14 @@
+/* React components for Shopping list Item */
 var Description = React.createClass({
-    propTypes: {
-        description: React.PropTypes.string
-    },
-    render: function() {
-        return <div className="panel-body"> {this.props.description} </div>
+    render: function () {
+        return <div className="panel-body">{this.props.text}</div>
     }
 });
 
 var ListItem = React.createClass({
     propTypes: {
-        handleRemoveListItem: React.PropTypes.func.isRequired,
-        item: React.PropTypes.object.isRequired
+        item: React.PropTypes.object.isRequired,
+        handleRemoveListItem: React.PropTypes.func.isRequired
     },
     handleSubmit: function(e) {
         e.preventDefault();
@@ -23,11 +21,10 @@ var ListItem = React.createClass({
                 <div className="panel-heading">
                     {item.quantity} x {item.name}
                 </div>
-
-                {item.description.length > 0 ? <Description description={item.description} /> : ''}
-                <div classNamme="panel-footer">
+                {item.description.length > 0 ? <Description text={item.description} /> : ''}
+                <div className="panel-footer">
                     <form className="form-inline" onSubmit={this.handleSubmit}>
-                        <button type="submit" className="btn btn-default btn-xs">Remove</button>
+                        <button className="btn btn-xs btn-default" type="submit">Remove</button>
                     </form>
                 </div>
             </div>
@@ -35,9 +32,10 @@ var ListItem = React.createClass({
     }
 });
 
+/* React component for the list header */
 var ListHeader = React.createClass({
     propTypes: {
-        totalNumberOfListItems: React.PropTypes.number.isRequired,
+        totalNumberOfItems: React.PropTypes.number.isRequired,
         removeAllListItems: React.PropTypes.func.isRequired
     },
     handleSubmit: function(e) {
@@ -45,106 +43,145 @@ var ListHeader = React.createClass({
         this.props.removeAllListItems();
     },
     render: function() {
-        var totalNumberOfListItems = this.props.totalNumberOfListItems;
-        if (totalNumberOfListItems > 0) {
+        var totalItems = this.props.totalNumberOfItems;
+        if (totalItems > 0) {
             return (
                 <form onSubmit={this.handleSubmit} className="form-inline">
-                    {this.props.totalNumberOfListItems} {totalNumberOfListItems === 1 ? "item" : "items"}
-                    <button className="btn btn-xs btn-default" type="submit">Remove All</button>
+                {totalItems} {totalItems > 1 ? "items" : "item"}
+                {' '}
+                    <button type="submit" className="btn btn-xs btn-default">Remove All</button>
                 </form>
-            )
+            );
         }
-        return (<span> Shopping List</span>)
+        return ( <span>Shopping List</span> );
     }
 });
 
+/* React component for the empty list */
 var EmptyList = React.createClass({
     render: function() {
-        return <div> There are no items in your list </div>
+        return <div>There are no items in your list</div>
     }
 });
 
+/**
+ * React Component for the list
+ * Note: items is an object and *NOT* an array
+**/
 var List = React.createClass({
     propTypes: {
+        itemsObj: React.PropTypes.object.isRequired,
         removeListItem: React.PropTypes.func.isRequired,
-        removeAllListItems: React.PropTypes.func.isRequired,
-        items: React.PropTypes.array.isRequired
+        removeAllListItems: React.PropTypes.func.isRequired
     },
-    getListOfItemIds: function (items) {
-        return Object.keys(items);
+    getListOfItemIds: function() {
+        return Object.keys(this.props.itemsObj);
     },
-    getTotalNumberOfListItems: function(items) {
-        var total = 0;
-        var item;
-
-        this.getListOfItemIds(items).forEach(function (itemId) {
-            item = items[itemId];
-            total = total + parseInt(item.quantity, 10);
+    totalItemCount: function() {
+        var count = 0;
+        var itemsObj = this.props.itemsObj;
+        this.getListOfItemIds().forEach(function(itemId) {
+            var item = itemsObj[itemId];
+            count += parseInt(item.quantity, 10);
         });
-        return total;
+        return count;
     },
-    generateListItem: function(item) {
-        return (
-            <ListItem item={item}
-                handleRemoveListItem={this.props.removeListItem}
-                key={item.id}
-            />
-        )
-    },
-    createListItemElements: function(items) {
-        var item;
+    createListItems: function() {
+        var itemsObj = this.props.itemsObj;
         return (
             this
-            .getListOfItemIds(items)
-            .map(function(itemId) {
-                    item = items[itemId];
-                    return this.generateListItem(item);
+                .getListOfItemIds()
+                .map(function(itemId){
+                    var item = itemsObj[itemId];
+                    return (
+                        <ListItem item={item}
+                        key={item.id}
+                        handleRemoveListItem={this.props.removeListItem}/>
+                    );
                 }.bind(this))
         );
     },
     render: function() {
-        var items = this.props.items;
-        var listItemElements = this.createListItemElements(items);
-
+        var listItemElements = this.createListItems();
         return (
             <div>
-                <h3 className='page-header'>
-                <ListHeader
-                    totalNumberOfListItems = {this.getTotalNumberOfListItems(items)}
-                    removeAllListItems = {this.props.removeAllListItems} />
+                <h3 className="page-header">
+                    <ListHeader
+                        totalNumberOfItems={this.totalItemCount()}
+                        removeAllListItems={this.props.removeAllListItems} />
                 </h3>
-                <ul> {listItemElements.length > 0 ? listItemElements : <EmptyList />} </ul>
+                <ul>{listItemElements.length > 0 ? listItemElements : <EmptyList />}</ul>
             </div>
-        )
+        );
     }
 });
 
-
+/* React Component for the form */
 var AddListItem = React.createClass({
-    getNewId: function() {
-        return (Math.round(Math.random() * 10000)).toString();
+    propTypes: {
+        handleAddListItem: React.PropTypes.func
+    },
+    getRandomID: function() {
+        return (
+            Math.round(Math.random() * 100000)
+        ).toString();
+    },
+    handleSubmit: function(e) {
+        e.preventDefault();
+        var item = {
+            id: this.getRandomID(),
+            name: this.refs.name.getDOMNode().value.trim(),
+            description: this.refs.description.getDOMNode().value.trim(),
+            quantity: this.refs.quantity.getDOMNode().value
+        };
+        this.props.handleAddListItem(item);
     },
     render: function() {
-        return <h1>hello</h1>
+        return (
+            <form onSubmit={this.handleSubmit}>
+                <h3 className="page-header">Add New Item</h3>
+
+                <div className="form-group">
+                    <label htmlFor="listItemName">Name</label>
+                    <input type="text" className="form-control"
+                        id="listItemName" placeholder="Enter name" required ref="name" />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="listItemDescription">Description</label>
+                    <input type="text" className="form-control"
+                        id="listItemDescription" placeholder="Enter description" required ref="description" />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="listItemQuantity">Quantity</label>
+                    <div className="row">
+                        <div className="col-xs-5 col-sm-6 col-md-4">
+                            <input type="number" min="1" max="9999" step="1" defaultValue="1"
+                                className="form-control" id="listItemQuantity" required ref="quantity" />
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" className="btn btn-primary">Add to list</button>
+                <button type="reset" className='btn btn-default'>Cancel</button>
+            </form>
+        );
     }
 });
 
-/*  The key data structure in the master shopping list
-    is an object and not an array (called list)
-    items are indexed by uuids.
-    Hence, iteration is done via object.keys()
- */
+/* Top Level Component for Shopping List */
 var ShoppingList = React.createClass({
     getInitialState: function() {
-        return { list: {} }
-    },
-    addListItem: function(item) {
-        var list = this.state.list;
-        list[item.id] = item;
-        this.updateList(list);
+        return { list: {} };
     },
     updateList: function(list) {
         this.setState({list: list});
+    },
+    updateListItem: function(item) {
+        var list = this.state.list;
+        list[item.id] = item;
+        this.updateList(list);
     },
     removeListItem: function(itemId) {
         var list = this.state.list;
@@ -155,32 +192,23 @@ var ShoppingList = React.createClass({
         this.updateList({});
     },
     render: function() {
-        var items = this.state.list;
+        var itemsObj = this.state.list;
         return (
             <div className="row">
                 <div className="col-sm-6">
-                    <List items={items}
-                        removeListItem={this.removeListItem}
+                    <List
+                        itemsObj={itemsObj}
+                        removeListitem={this.removeListItem}
                         removeAllListItems={this.removeAllListItems} />
                 </div>
-                <div className='col-sm-6'>
-                    <AddListItem handleSubmit={this.addListItem} />
+                <div className="col-sm-6">
+                    <AddListItem handleAddListItem={this.updateListItem} />
                 </div>
             </div>
         )
     }
 });
 
-var items = [
-    { id: 1, quantity: 10, name: "Milk Cartons", description: "Nadec milk - full fat" },
-    { id: 2, quantity: 9, name: "Cartons", description: "Nadec fat" },
-    { id: 3, quantity: 6, name: "MIlk", description: "Nadec full fat" },
-    { id: 4, quantity: 2, name: "Tea", description: "Nadec milk full" }
-];
-
-var blank = function() {};
-
 React.render(
-    <List items={items} removeListItem={blank} removeAllListItems={blank} />,
-    document.getElementById("app")
+    <ShoppingList />, document.getElementById("app")
 );
