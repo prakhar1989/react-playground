@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="../build/react.js"></script>
+    <script src="../build/JSXTransformer.js"></script>
+    <link rel="stylesheet" href="http://getskeleton.com/dist/css/normalize.css">
+    <link rel="stylesheet" href="http://getskeleton.com/dist/css/skeleton.css">
+    <style>
+        [draggable] {
+            -moz-user-select: none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+            user-select: none;
+            /* Required to make elements draggable in old WebKit */
+            -khtml-user-drag: element;
+            -webkit-user-drag: element;
+        }
+        .product {
+            border: 1px solid #eee;
+            border-radius: 5px;
+            display: inline-block;
+            padding: 10px;
+            cursor: pointer;
+            width: 200px;
+            margin-right: 10px;
+        }
+        .product p {
+            margin: 0;
+        }
+        .product span {
+            font-style: italic;
+            color: #9d9d9d;
+        }
+        body {
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="app"></div>
+    </div>
+    <script type="text/javascript">
+        var products = [
+            { title: "iPhone 5S", price: 299.99 , id: 1},
+            { title: "iWatch", price: 124.33 , id: 2},
+            { title: "Nexus 5", price: 650.00 , id: 3},
+            { title: "Beats Headphones", price: 150.00, id: 4},
+            { title: "MacBook Pro", price: 1299.99, id: 5},
+            { title: "Samsung Tab", price: 299.99, id: 6},
+            { title: "Canon Camera", price: 459.99, id: 7},
+            { title: "Razer DeathAdder", price: 59.99, id: 8}
+        ];
+    </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
+    <script type="text/jsx" src="js/reactcart.js"></script>
+</body>
+</html>
