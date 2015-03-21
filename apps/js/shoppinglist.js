@@ -210,5 +210,6 @@ var ShoppingList = React.createClass({
 });
 
 React.render(
-    <ShoppingList />, document.getElementById("app")
+    <ShoppingList />,
+    document.getElementById("app")
 );

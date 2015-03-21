@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <style>
+            /* Prevent the text contents of draggable elements from being selectable. */
+            [draggable] {
+                -moz-user-select: none;
+                -khtml-user-select: none;
+                -webkit-user-select: none;
+                user-select: none;
+                /* Required to make elements draggable in old WebKit */
+                -khtml-user-drag: element;
+                -webkit-user-drag: element;
+            }
+            #columns {
+                margin: 20px 0;
+            }
+            .column {
+                height: 100px;
+                width: 100px;
+                display: inline-block;
+                border: 2px solid #666666;
+                background: #eee;
+                margin-right: 5px;
+                border-radius: 10px;
+                text-align: center;
+                cursor: move;
+            }
+            .column header {
+                box-shadow: 5px;
+                padding: 5px;
+                border-bottom: 1px solid #ddd;
+            }
+            #droparea {
+                width: 400px;
+                height: 200px;
+                border: 1px dashed #000000;
+            }
+            p#count {
+                font-size: 18px;
+                margin: 0;
+            }
+            #droparea.over {
+                border: 1px dashed #000000;
+                background-color: #e2e2e2;
+            }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <h1>A simple DND demo</h1>
+        <div id="columns">
+            <div class="column" draggable="true" data-price="600"><header>iPhone</header></div>
+            <div class="column" draggable="true" data-price="340"><header>Nexus</header></div>
+            <div class="column" draggable="true" data-price="250"><header>Galaxy s3</header></div>
+        </div>
+        <p>Total: $ <span id="counter">0</span> </p>
+        <div id="droparea" data-price="0"></div>
+    </div>
+    <script type="text/javascript">
+
+        /* for objects */
+        function handleDragStart(e) {
+            this.style.opacity = '0.4';
+
+            // set the data - read more https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Drag_operations#drageffects
+            e.dataTransfer.effectAllowed = 'copy';
+            e.dataTransfer.setData('text/plain', this.dataset.price);
+        }
+
+        function handleDragEnd(e) {
+            this.style.opacity = "1";
+        }
+
+        /* for targets */
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault(); // allows us to drop
+            }
+            e.dataTransfer.dropEffect = 'copy';
+            return false;
+        }
+
+        function handleDragEnter(e) {
+            this.classList.add('over');
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('over');
+        }
+
+        // the actual drop
+        function handleDrop(e) {
+            // this or e.target is the target element
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            this.classList.remove("over");
+            var price = e.dataTransfer.getData('text/plain');
+            setQty(this, price);
+            return false;
+        }
+
+        function setQty(elem, price) {
+            var c = document.getElementById('counter'),
+                currentQty = elem.dataset.price,
+                total = parseInt(currentQty, 10) + parseInt(price, 10);
+
+            c.innerHTML = total;
+            elem.dataset.price = total;
+        }
+
+        window.cols = document.querySelectorAll('#columns .column');
+        [].forEach.call(cols, function(col) {
+            col.addEventListener('dragstart', handleDragStart, false);
+            col.addEventListener('dragend', handleDragEnd, false);
+        });
+
+        /* handling the drop area */
+        var dropArea = document.getElementById("droparea");
+        dropArea.addEventListener('dragenter', handleDragEnter, false);
+        dropArea.addEventListener('dragleave', handleDragLeave, false);
+        dropArea.addEventListener('dragover', handleDragOver, false);
+        dropArea.addEventListener('drop', handleDrop, false);
+    </script>
+</body>
+</html>
